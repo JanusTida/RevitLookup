@@ -2,8 +2,14 @@ using System;
 using System.Collections;
 using System.Reflection;
 using Autodesk.Revit.DB;
-using Autodesk.Revit.DB.Visual;
 using Autodesk.Revit.UI;
+
+
+#if V2017
+    using Autodesk.Revit.Utility;
+#else
+    using Autodesk.Revit.DB.Visual;
+#endif
 
 namespace RevitLookup.Snoop.CollectorExts
 {

@@ -21,6 +21,15 @@
 // (Rights in Technical Data and Computer Software), as applicable.
 //
 #endregion // Header
+#if (V2018 || V2017)
+#define LESS_THAN_2019
+#endif
+
+#if V2017
+using ASTNameSpace = Autodesk.Revit.Utility;
+#else
+using ASTNameSpace = Autodesk.Revit.DB.Visual;
+#endif
 
 using System.Collections;
 using System.Collections.Generic;
@@ -250,33 +259,34 @@ namespace RevitLookup
       ref string msg,
       ElementSet elems )
     {
-      Result result = Result.Failed;
+        Result result = Result.Failed;
 
-      try
-      {
-        Snoop.CollectorExts.CollectorExt.m_app = cmdData.Application;
-        UIDocument uidoc = cmdData.Application.ActiveUIDocument;
-        ICollection<ElementId> idPickfirst = uidoc.Selection.GetElementIds();
-        Document doc = uidoc.Document;
+        try
+        {
+            Snoop.CollectorExts.CollectorExt.m_app = cmdData.Application;
+            UIDocument uidoc = cmdData.Application.ActiveUIDocument;
+            ICollection<ElementId> idPickfirst = uidoc.Selection.GetElementIds();
+            Document doc = uidoc.Document;
 
-        ICollection<Element> elemSet = new List<Element>(
-          idPickfirst.Select<ElementId, Element>(
-            id => doc.GetElement( id ) ) );
+            ICollection<Element> elemSet = new List<Element>(
+              idPickfirst.Select<ElementId, Element>(
+                id => doc.GetElement( id ) ) );
+    #if !LESS_THAN_2019
 
-        ICollection<ElementId> ids = elemSet.SelectMany(
-          t => t.GetDependentElements( null ) ).ToList();
+            ICollection<ElementId> ids = elemSet.SelectMany(
+            t => t.GetDependentElements( null ) ).ToList();
 
-        Snoop.Forms.Objects form = new Snoop.Forms.Objects( doc, ids );
-        ActiveDoc.UIApp = cmdData.Application;
-        form.ShowDialog();
-
-        result = Result.Succeeded;
-      }
-      catch( System.Exception e )
-      {
+                    Objects form = new Objects( doc, ids );
+            ActiveDoc.UIApp = cmdData.Application;
+            form.ShowDialog();
+    #endif
+            result = Result.Succeeded;
+        }
+        catch ( System.Exception e )
+        {
         msg = e.Message;
-      }
-      return result;
+        }
+        return result;
     }
   }
 

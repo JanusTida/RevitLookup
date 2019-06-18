@@ -3,6 +3,7 @@ using System.Reflection;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.DB;
 using RevitLookup.Snoop.Data;
+using System.Diagnostics;
 
 namespace RevitLookup.Snoop.CollectorExts
 {
@@ -20,17 +21,18 @@ namespace RevitLookup.Snoop.CollectorExts
         public Data.Data Create(MethodInfo methodInfo)
         {
             var declaringType = methodInfo.DeclaringType;
-
+            
             if (methodInfo.IsSpecialName || declaringType == null)
                 return null;
 
+#if !V2017 && !V2018
             if (declaringType == typeof(Element) && methodInfo.Name == nameof(Element.GetDependentElements))
             {
                 var element = (Element) elem;
 
                 return DataTypeInfoHelper.CreateFrom(application, methodInfo, element.GetDependentElements(null), element);
             }
-
+#endif
             if (declaringType == typeof (Element) && methodInfo.Name == nameof(Element.GetPhaseStatus))
                 return new ElementPhaseStatuses(methodInfo.Name, (Element) elem);
 
